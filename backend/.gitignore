@@ -1,0 +1,13 @@
+# Environment variables
+.env
+
+# Dependencies
+node_modules/
+
+# Uploaded files (keep directory, ignore contents)
+uploads/*
+!uploads/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
