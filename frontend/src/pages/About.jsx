@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useReveal } from '../hooks/useReveal';
 
 function About() {
+  const rootRef = useReveal();
+
   return (
-    <div className="about-page" style={{ maxWidth: '840px', margin: '0 auto' }}>
+    <div className="about-page" ref={rootRef} style={{ maxWidth: '840px', margin: '0 auto' }}>
       <header className="page-header" style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <div className="editorial-journey-kicker" style={{ justifyContent: 'center' }}>
           <span className="editorial-journey-step">Manifesto</span>
@@ -15,9 +18,9 @@ function About() {
         </p>
       </header>
 
-      <section className="form-card" style={{ maxWidth: '100%', marginBottom: '2.5rem', padding: '3rem' }}>
+      <section className="form-card about-manifesto-card" style={{ maxWidth: '100%', marginBottom: '2.5rem' }}>
         <div className="story-details-kicker" style={{ marginBottom: '1.25rem' }}>
-          <span className="page-category-tag" style={{ backgroundColor: 'var(--color-bright-pink)', color: '#fff' }}>
+          <span className="page-category-tag" style={{ backgroundColor: 'var(--color-dark-text)', color: 'var(--color-cream)' }}>
             The Core Concept
           </span>
         </div>
@@ -31,27 +34,27 @@ function About() {
           to be presented with the aesthetic care and visual dignity of a modern independent digital magazine.
         </p>
 
-        <p style={{ marginBottom: '2rem', fontSize: '1.0625rem', lineHeight: '1.75', color: 'var(--color-muted-text)' }}>
+        <p style={{ marginBottom: '2rem', fontSize: '1.0625rem', lineHeight: '1.75', color: 'rgba(37, 35, 41, 0.75)' }}>
           Whether documenting creative journeys, insightful essays, or personal memoirs, INKA provides a warm, 
           expressive, and playful platform for authentic storytelling without the clutter of social media algorithms.
         </p>
 
-        <div className="about-values-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--color-border)' }}>
-          <div>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', marginBottom: '0.35rem', color: 'var(--color-bright-pink)' }}>01. Editorial First</h3>
-            <p style={{ fontSize: '0.875rem', color: 'var(--color-muted-text)', lineHeight: '1.5' }}>
+        <div className="about-values-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(37, 35, 41, 0.15)' }}>
+          <div data-reveal="up">
+            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', marginBottom: '0.35rem', color: 'var(--color-dark-text)' }}>01. Editorial First</h3>
+            <p style={{ fontSize: '0.875rem', color: 'rgba(37, 35, 41, 0.75)', lineHeight: '1.5' }}>
               Every article is framed with intentional typography, generous spacing, and thoughtful hierarchy.
             </p>
           </div>
-          <div>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', marginBottom: '0.35rem', color: 'var(--color-yellow)' }}>02. Authentic Voices</h3>
-            <p style={{ fontSize: '0.875rem', color: 'var(--color-muted-text)', lineHeight: '1.5' }}>
+          <div data-reveal="up">
+            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', marginBottom: '0.35rem', color: 'var(--color-dark-text)' }}>02. Authentic Voices</h3>
+            <p style={{ fontSize: '0.875rem', color: 'rgba(37, 35, 41, 0.75)', lineHeight: '1.5' }}>
               Real human experiences, unedited reflections, and personal perspectives.
             </p>
           </div>
-          <div>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', marginBottom: '0.35rem', color: 'var(--color-sky-blue)' }}>03. Playful Details</h3>
-            <p style={{ fontSize: '0.875rem', color: 'var(--color-muted-text)', lineHeight: '1.5' }}>
+          <div data-reveal="up">
+            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', marginBottom: '0.35rem', color: 'var(--color-dark-text)' }}>03. Playful Details</h3>
+            <p style={{ fontSize: '0.875rem', color: 'rgba(37, 35, 41, 0.75)', lineHeight: '1.5' }}>
               Delightful visual accents, warm color palettes, and expressive character.
             </p>
           </div>

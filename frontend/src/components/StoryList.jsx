@@ -1,5 +1,6 @@
 import StoryCard from './StoryCard';
 import Button from './Button';
+import { useReveal } from '../hooks/useReveal';
 
 function StoryList({
   posts = [],
@@ -58,6 +59,12 @@ function StoryList({
     );
   }
 
+  return <MagazineComposition posts={posts} />;
+}
+
+function MagazineComposition({ posts }) {
+  const rootRef = useReveal();
+
   // -------------------------------------------------------------
   // EDITORIAL MAGAZINE COMPOSITION
   // -------------------------------------------------------------
@@ -71,13 +78,13 @@ function StoryList({
   const archivePosts = posts.slice(5);
 
   return (
-    <div className="editorial-story-container">
+    <div className="editorial-story-container" ref={rootRef}>
       {/* 1. Lead Featured Story (Level 1) */}
-      {featuredPost && <div className="motion-scale-in"><StoryCard post={featuredPost} variant="featured" /></div>}
+      {featuredPost && <div data-reveal="feature"><StoryCard post={featuredPost} variant="featured" /></div>}
 
       {/* 2. Secondary Supporting Stories (Level 2) */}
       {secondaryPosts.length > 0 && (
-        <section aria-label="Curated Essays" className="editorial-section motion-fade-up motion-stagger-1">
+        <section aria-label="Curated Essays" className="editorial-section" data-reveal="up">
           <div className="editorial-section-header">
             <span className="editorial-section-kicker">Section 01</span>
             <h2 className="editorial-section-title">Curated Essays & Narratives</h2>
@@ -93,7 +100,7 @@ function StoryList({
 
       {/* 3. Dispatches & Visual Pieces (Levels 3 & 4) */}
       {midPosts.length > 0 && (
-        <section aria-label="Dispatches and Visual Stories" className="editorial-section motion-fade-up motion-stagger-2">
+        <section aria-label="Dispatches and Visual Stories" className="editorial-section" data-reveal="up">
           <div className="editorial-section-header">
             <span className="editorial-section-kicker">Section 02</span>
             <h2 className="editorial-section-title">Dispatches & Perspectives</h2>
@@ -117,7 +124,7 @@ function StoryList({
 
       {/* 4. Complete Archive / Additional Stories */}
       {archivePosts.length > 0 && (
-        <section aria-label="Journal Archive" className="editorial-section motion-fade-up motion-stagger-3" style={{ marginTop: '3.5rem' }}>
+        <section aria-label="Journal Archive" className="editorial-section" data-reveal="up" style={{ marginTop: '3.5rem' }}>
           <div className="editorial-section-header">
             <span className="editorial-section-kicker">Section 03</span>
             <h2 className="editorial-section-title">The Journal Archive</h2>

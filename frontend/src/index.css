@@ -91,6 +91,32 @@ textarea {
   outline-offset: 2px;
 }
 
+/* Skip link: visually hidden until keyboard focus (Milestone 15) */
+.skip-link {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  transform: translateY(-300%);
+  background-color: var(--color-dark-text);
+  color: var(--color-cream);
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 0.875rem;
+  transition: transform var(--duration-fast) var(--ease-editorial);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* Main region receives programmatic focus on route change only
+   (tabIndex -1: never in keyboard tab order, so no ring needed) */
+#main-content:focus {
+  outline: none;
+}
+
 /* ==========================================================================
    INKA Motion System Utilities (Milestone 13)
    ========================================================================== */
@@ -198,18 +224,76 @@ textarea {
   align-items: center;
   gap: 0.5rem;
   transition: color var(--transition-fast);
+  animation:
+    inkaLogoIn 780ms var(--ease-editorial) both,
+    inkaLogoSettle 220ms var(--ease-editorial) 820ms both;
 }
 
 .navbar-brand:hover {
   color: var(--color-bright-pink);
 }
 
-.navbar-brand-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  background-color: var(--color-bright-pink);
-  border-radius: 50%;
+/* Logo masthead motion: expressive editorial entrance on the link wrapper
+   (entrance + one-time settle accent, fill states agree on identity),
+   hover/focus/active nudges on the artwork itself (decoupled). */
+@keyframes inkaLogoIn {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.94) rotate(-2deg);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.015) rotate(0.5deg);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(1px) scale(0.995) rotate(-0.2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes inkaLogoSettle {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.008);
+  }
+  to {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.navbar-logo {
+  display: block;
+  height: 34px;
+  width: auto;
+  transition: transform 250ms var(--ease-editorial);
+}
+
+.navbar-brand:hover .navbar-logo,
+.navbar-brand:focus-visible .navbar-logo {
+  transform: translateY(-3px) scale(1.035) rotate(0.8deg);
+}
+
+.navbar-brand:active .navbar-logo {
+  transform: scale(0.97);
+  transition-duration: 120ms;
+}
+
+@media (max-width: 768px) {
+  .navbar-logo {
+    height: 30px;
+  }
+
+  /* Mobile: same personality, slightly reduced lift */
+  .navbar-brand:hover .navbar-logo,
+  .navbar-brand:focus-visible .navbar-logo {
+    transform: translateY(-2px) scale(1.02) rotate(0.4deg);
+  }
 }
 
 .navbar-links {
@@ -230,7 +314,10 @@ textarea {
   position: relative;
 }
 
-.nav-link:hover,
+.nav-link:hover {
+  color: var(--color-dark-text);
+}
+
 .nav-link.active {
   color: var(--color-bright-pink);
 }
@@ -287,7 +374,7 @@ textarea {
 
 .alert-error {
   background-color: rgba(232, 62, 140, 0.1);
-  border: 1.5px solid var(--color-bright-pink);
+  border: 1.5px solid var(--color-error);
   color: var(--color-dark-text);
   padding: 0.85rem 1.15rem;
   border-radius: var(--radius-md);
@@ -510,7 +597,7 @@ textarea {
 }
 
 .story-card-author {
-  color: var(--color-bright-pink);
+  color: var(--color-dark-text);
   font-weight: 700;
 }
 
@@ -521,10 +608,6 @@ textarea {
   margin-bottom: 0.75rem;
   color: var(--color-dark-text);
   transition: color var(--transition-fast);
-}
-
-.story-card:hover .story-card-title {
-  color: var(--color-bright-pink);
 }
 
 .story-card-excerpt {
@@ -569,10 +652,14 @@ textarea {
   border-radius: var(--radius-lg);
   overflow: hidden;
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
+  grid-template-columns: 1.3fr 0.7fr;
   box-shadow: 6px 6px 0px var(--color-dark-text);
   margin-bottom: 3.5rem;
   transition: all var(--transition-normal);
+  /* Thin offset print frame traced on the card's own box so it hugs the
+     visible edges exactly (a wrapper-level outline cannot do this). */
+  outline: 1.5px solid rgba(37, 35, 41, 0.45);
+  outline-offset: 7px;
 }
 
 .featured-story-card:hover {
@@ -583,9 +670,24 @@ textarea {
 .featured-story-image-wrapper {
   position: relative;
   width: 100%;
-  min-height: 380px;
+  min-height: 420px;
   background-color: var(--color-soft-pink);
   overflow: hidden;
+}
+
+/* Plate number: the spread's one quiet registration detail */
+.featured-story-image-wrapper::after {
+  content: "N°01";
+  position: absolute;
+  left: 1.25rem;
+  bottom: 1.25rem;
+  background-color: var(--color-bg);
+  color: var(--color-dark-text);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-full);
 }
 
 .featured-story-image {
@@ -618,7 +720,7 @@ textarea {
   font-size: 3.5rem;
   font-weight: 800;
   letter-spacing: -0.04em;
-  color: var(--color-bright-pink);
+  color: var(--color-dark-text);
   margin-bottom: 0.25rem;
 }
 
@@ -632,10 +734,16 @@ textarea {
 }
 
 .featured-story-body {
-  padding: 3rem 2.5rem;
+  padding: 2.75rem 2.5rem 2.75rem 3rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position: relative;
+  z-index: 2;
+  background-color: var(--color-card-bg);
+  box-shadow: var(--shadow-md);
+  /* Floating text plate overlapping the image column: the spread moment */
+  margin: 3rem 0 3rem -6rem;
 }
 
 .featured-story-header {
@@ -682,6 +790,8 @@ textarea {
 
 .featured-story-footer {
   margin-top: auto;
+  border-top: 1px solid var(--color-border);
+  padding-top: 1.5rem;
 }
 
 /* Level 2: Secondary Supporting Story */
@@ -692,7 +802,8 @@ textarea {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-sm);
+  /* Flat at rest: editorial calm; depth arrives on hover interaction */
+  box-shadow: none;
   transition: all var(--transition-normal);
 }
 
@@ -722,7 +833,7 @@ textarea {
 
 .secondary-story-placeholder {
   width: 100%;
-  height: 180px;
+  height: 240px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -748,10 +859,6 @@ textarea {
   color: var(--color-dark-text);
   margin-bottom: 0.85rem;
   transition: color var(--transition-fast);
-}
-
-.secondary-story-card:hover .secondary-story-title {
-  color: var(--color-bright-pink);
 }
 
 .secondary-story-excerpt {
@@ -820,10 +927,6 @@ textarea {
   line-height: 1.3;
   margin-bottom: 0.75rem;
   color: var(--color-dark-text);
-}
-
-.thought-story-title a:hover {
-  color: var(--color-bright-pink);
 }
 
 .thought-story-excerpt {
@@ -928,7 +1031,7 @@ textarea {
 .editorial-section-kicker {
   font-size: 0.75rem;
   font-weight: 800;
-  color: var(--color-bright-pink);
+  color: var(--color-dark-text);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-right: 0.75rem;
@@ -936,7 +1039,7 @@ textarea {
 
 .editorial-section-title {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.7rem;
   font-weight: 800;
   color: var(--color-dark-text);
   letter-spacing: -0.02em;
@@ -955,6 +1058,23 @@ textarea {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 2.5rem;
+}
+
+/* Lead secondary: full-width horizontal rhythm-breaker */
+.secondary-story-grid > article:first-child {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.secondary-story-grid > article:first-child .secondary-story-image-wrapper,
+.secondary-story-grid > article:first-child .secondary-story-placeholder {
+  height: auto;
+  min-height: 300px;
+}
+
+.secondary-story-grid > article:first-child > * {
+  min-width: 0;
 }
 
 .editorial-asymmetric-row {
@@ -1074,7 +1194,7 @@ textarea {
 }
 
 .story-author-badge {
-  color: var(--color-bright-pink);
+  color: var(--color-dark-text);
   font-weight: 700;
 }
 
@@ -1176,7 +1296,7 @@ textarea {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-bright-pink);
+  color: var(--color-muted-text);
   display: block;
   margin-bottom: 0.2rem;
 }
@@ -1232,7 +1352,7 @@ textarea {
 }
 
 .editorial-journey-step.active {
-  color: var(--color-bright-pink);
+  color: var(--color-dark-text);
   background-color: var(--color-soft-pink);
   padding: 0.2rem 0.65rem;
   border-radius: var(--radius-full);
@@ -1243,13 +1363,39 @@ textarea {
   opacity: 0.6;
 }
 
-/* Foundation Hero */
+/* Foundation Hero: two-column cover spread sharing one vertical frame.
+   Left column carries kicker → title → lede; the note spans all rows
+   so its top meets the kicker and its bottom meets the CTA row. */
 .hero-section {
   padding: 3rem 0 4rem 0;
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 3rem;
-  align-items: center;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 0 3rem;
+  align-items: start;
+}
+
+.hero-kicker {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.hero-title {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.hero-lede {
+  grid-column: 1;
+  grid-row: 3;
+  min-width: 0;
+  padding-top: 0.5rem;
+}
+
+.hero-card-preview {
+  grid-column: 2;
+  grid-row: 1 / 4;
+  display: flex;
+  flex-direction: column;
 }
 
 .hero-kicker {
@@ -1288,8 +1434,8 @@ textarea {
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 4.8vw, 3.8rem);
-  line-height: 1.08;
+  font-size: clamp(2.75rem, 5.2vw, 4.25rem);
+  line-height: 1.06;
   font-weight: 800;
   letter-spacing: -0.03em;
   margin-bottom: 1.25rem;
@@ -1314,39 +1460,70 @@ textarea {
   flex-wrap: wrap;
 }
 
+/* Micro publication furniture beneath the actions */
+.hero-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-muted-text);
+}
+
+.hero-seq-meta {
+  animation-delay: 880ms;
+}
+
 .hero-card-preview {
-  background: linear-gradient(135deg, var(--color-soft-pink) 0%, var(--color-cream) 50%, var(--color-sky-blue) 100%);
-  border: 2px solid var(--color-dark-text);
-  border-radius: var(--radius-lg);
-  padding: 2.5rem;
-  box-shadow: 8px 8px 0px var(--color-dark-text);
+  background: linear-gradient(135deg, var(--color-soft-pink) 0%, var(--color-yellow) 100%);
+  border: 1.5px solid var(--color-dark-text);
+  border-left: 4px solid var(--color-bright-pink);
+  border-radius: var(--radius-md);
+  padding: 2.75rem 2.5rem;
   text-align: left;
   position: relative;
+  box-shadow: var(--shadow-lg);
 }
 
 .hero-card-accent-badge {
-  display: inline-block;
-  background-color: var(--color-bright-pink);
-  color: #FFFFFF;
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: none;
+  color: var(--color-dark-text);
+  padding: 0;
+  border-radius: 0;
   font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 1rem;
+  letter-spacing: 0.12em;
+  margin-bottom: 1.25rem;
+}
+
+.hero-card-accent-badge::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-bright-pink);
+  flex-shrink: 0;
 }
 
 .hero-card-preview-title {
   font-family: var(--font-display);
   font-size: 1.6rem;
   line-height: 1.25;
-  color: var(--color-dark-text);
+  color: #282027;
   margin-bottom: 1rem;
 }
 
 .hero-card-preview-text {
-  color: var(--color-dark-text);
+  color: #282027;
   opacity: 0.85;
   font-size: 0.95rem;
   line-height: 1.6;
@@ -1358,10 +1535,11 @@ textarea {
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-dark-text);
+  color: #282027;
   opacity: 0.7;
-  border-top: 1px solid rgba(37, 35, 41, 0.2);
+  border-top: 1px solid rgba(40, 32, 39, 0.2);
   padding-top: 0.75rem;
+  margin-top: auto;
 }
 
 /* Home Section Masthead Divider */
@@ -1388,17 +1566,32 @@ textarea {
 
 /* Editorial Manifesto Banner */
 .editorial-manifesto-banner {
-  background-color: var(--color-card-bg);
+  background: linear-gradient(135deg, var(--color-yellow) 0%, var(--color-sky-blue) 100%);
   border: 1.5px solid var(--color-dark-text);
   border-radius: var(--radius-lg);
   padding: 3.5rem 2.5rem;
   margin: 4.5rem 0 2rem 0;
   text-align: center;
-  box-shadow: 6px 6px 0px var(--color-yellow);
+  position: relative;
+  box-shadow: 4px 4px 0px var(--color-dark-text);
+}
+
+/* Single registration tick: the manifesto's one deliberate detail. */
+.editorial-manifesto-banner::after {
+  content: "+";
+  position: absolute;
+  top: 14px;
+  right: 20px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-dark-text);
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 .manifesto-mark {
-  color: var(--color-bright-pink);
+  color: var(--color-dark-text);
   font-size: 1.5rem;
   margin-bottom: 1rem;
 }
@@ -1418,7 +1611,7 @@ textarea {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-bright-pink);
+  color: var(--color-dark-text);
 }
 
 /* Journal Masthead */
@@ -1443,7 +1636,7 @@ textarea {
 }
 
 .journal-masthead-issue {
-  color: var(--color-bright-pink);
+  color: var(--color-dark-text);
 }
 
 .journal-masthead-title {
@@ -1498,7 +1691,9 @@ textarea {
   border-radius: var(--radius-lg);
   padding: 3.5rem 2.5rem;
   text-align: center;
-  box-shadow: 6px 6px 0px var(--color-dark-text);
+  /* Soft shadow (not offset): the offset block pools unevenly at the
+     rounded bottom corners against the light gradient. */
+  box-shadow: var(--shadow-lg);
 }
 
 .journal-closing-stamp {
@@ -1507,7 +1702,7 @@ textarea {
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-bright-pink);
+  color: var(--color-dark-text);
   margin-bottom: 0.75rem;
 }
 
@@ -1676,10 +1871,6 @@ textarea {
   text-overflow: ellipsis;
 }
 
-.my-story-title a:hover {
-  color: var(--color-bright-pink);
-}
-
 .my-story-excerpt {
   font-size: 0.875rem;
   color: var(--color-muted-text);
@@ -1721,18 +1912,20 @@ textarea {
 .story-details-author-toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  background-color: rgba(255, 248, 238, 0.9);
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 0.85rem 1.25rem;
+  justify-content: flex-end;
+  gap: 1.25rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0;
+  padding: 0.4rem 0 0.85rem 0;
   margin-bottom: 2rem;
 }
 
 .story-details-author-toolbar-tag {
   font-size: 0.8125rem;
   font-weight: 700;
-  color: var(--color-bright-pink);
+  color: var(--color-muted-text);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -1778,11 +1971,30 @@ textarea {
   opacity: 0.75;
 }
 
+.footer-logo {
+  display: block;
+  height: 44px;
+  width: auto;
+  margin: 0 auto;
+}
+
 /* Responsive Breakpoints */
 @media (max-width: 900px) {
   .hero-section {
     grid-template-columns: 1fr;
     gap: 2rem;
+  }
+
+  .hero-kicker,
+  .hero-title,
+  .hero-lede,
+  .hero-card-preview {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .hero-card-preview {
+    margin-top: 0;
   }
 
   .featured-story-card {
@@ -1795,29 +2007,33 @@ textarea {
   }
 
   .featured-story-body {
+    margin: 0;
     padding: 2rem 1.5rem;
+    box-shadow: none;
   }
 }
 
 @media (max-width: 768px) {
   .navbar-inner {
     flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .navbar-links {
-    order: 3;
-    width: 100%;
-    justify-content: space-between;
-    gap: 0.75rem;
-    overflow-x: auto;
-    padding-bottom: 0.25rem;
+    gap: 0.75rem 1rem;
   }
 
   .story-grid,
   .secondary-story-grid,
   .editorial-asymmetric-row {
     grid-template-columns: 1fr;
+  }
+
+  .secondary-story-grid > article:first-child {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .secondary-story-grid > article:first-child .secondary-story-image-wrapper,
+  .secondary-story-grid > article:first-child .secondary-story-placeholder {
+    min-height: 0;
+    height: 240px;
   }
 
   .journal-masthead-top {
@@ -1851,6 +2067,1271 @@ textarea {
 }
 
 /* ==========================================================================
+   Milestone 14 — Responsive & Mobile Editorial Experience
+   Breakpoints: Desktop >= 1024px (base styles above) · Tablet 768–1023px ·
+   Mobile < 768px. Reuses existing tokens only; no new color/type system.
+   Layout is CSS-only (no viewport JS). Motion tokens untouched.
+   ========================================================================== */
+
+/* ---- Global mobile foundation: no page-level horizontal scrolling ---- */
+html,
+body {
+  overflow-x: clip;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* Long titles / names (including long Arabic strings) wrap, never overflow */
+.hero-title,
+.page-title,
+.story-details-title,
+.featured-story-title,
+.secondary-story-title,
+.thought-story-title,
+.visual-story-title,
+.story-card-title,
+.my-story-title,
+.journal-masthead-title,
+.manifesto-quote {
+  overflow-wrap: break-word;
+}
+
+/* Grid children may shrink so long content can't force a track wider */
+.story-grid > *,
+.secondary-story-grid > *,
+.editorial-asymmetric-row > * {
+  min-width: 0;
+}
+
+/* Wrapping helpers: journey kickers, journal bar, details kicker */
+.editorial-journey-kicker,
+.journal-masthead-bar,
+.story-details-kicker {
+  flex-wrap: wrap;
+}
+
+.story-details-kicker {
+  justify-content: center;
+}
+
+/* ---- Navbar collapsible region (toggle is mobile-only, see below) ---- */
+.navbar-toggle {
+  display: none;
+}
+
+.navbar-collapsible {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.navbar-collapsible .navbar-nav {
+  margin: 0 auto;
+  min-width: 0;
+}
+
+/* ---- Shared action-row helpers (wrap safely at every width) ---- */
+.form-actions-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.state-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.author-toolbar-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.story-details-author-toolbar {
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* ---- About manifesto card: desktop padding preserved, mobile eased ---- */
+.about-manifesto-card {
+  background: linear-gradient(135deg, var(--color-sky-blue) 0%, var(--color-soft-pink) 100%);
+  border: 1.5px solid var(--color-dark-text);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 3rem;
+}
+
+/* ==========================================================================
+   Tablet 768–1023px: compress spacing, keep two-column editorial feel
+   ========================================================================== */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .navbar-links {
+    gap: 1rem;
+  }
+
+  .navbar-actions {
+    gap: 0.75rem;
+  }
+
+  .hero-section {
+    gap: 2rem;
+  }
+
+  .main-content {
+    padding: 2rem 1.25rem;
+  }
+
+  .featured-story-body {
+    padding: 2.25rem 2rem;
+  }
+
+  .my-story-item {
+    gap: 1.25rem;
+    padding: 1.5rem;
+  }
+
+  .my-story-thumbnail-wrapper {
+    width: 120px;
+  }
+}
+
+/* ==========================================================================
+   Mobile < 768px: deliberate single-column editorial composition
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* ---- Navbar: hamburger + stacked editorial menu ---- */
+  .navbar-toggle {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    flex-shrink: 0;
+  }
+
+  .navbar-toggle:hover {
+    border-color: var(--color-bright-pink);
+  }
+
+  .navbar-toggle-bar {
+    display: block;
+    width: 20px;
+    height: 2px;
+    border-radius: 2px;
+    background-color: var(--color-dark-text);
+  }
+
+  .navbar-collapsible {
+    display: none;
+    flex: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+    padding: 0.75rem 0 1rem 0;
+    border-top: 1px solid var(--color-border);
+    margin-top: 0.25rem;
+  }
+
+  .navbar-collapsible.open {
+    display: flex;
+  }
+
+  .navbar-collapsible .navbar-nav {
+    margin: 0;
+    width: 100%;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+  }
+
+  .navbar-links li {
+    width: 100%;
+  }
+
+  .navbar-links .nav-link {
+    display: block;
+    padding: 0.8rem 0.25rem;
+    font-size: 0.9375rem;
+  }
+
+  .navbar-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--color-border);
+  }
+
+  .navbar-actions .btn {
+    min-height: 44px;
+    width: 100%;
+  }
+
+  .navbar-actions .nav-link {
+    text-align: center;
+    padding: 0.6rem 0;
+  }
+
+  .navbar-user {
+    text-align: center;
+  }
+
+  /* ---- Home: hero stays a magazine cover, tightened ---- */
+  .hero-section {
+    padding: 2rem 0 2.5rem 0;
+  }
+
+  .hero-card-preview {
+    padding: 1.75rem;
+  }
+
+  .hero-actions .btn {
+    min-height: 48px;
+  }
+
+  .editorial-manifesto-banner {
+    padding: 2.25rem 1.5rem;
+  }
+
+  /* ---- Story cards keep their variant identities ---- */
+  .thought-story-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .visual-story-image-wrapper {
+    height: 260px;
+  }
+
+  .visual-story-overlay {
+    padding: 1.25rem;
+  }
+
+  /* ---- Reading experience: comfortable measure, strong hierarchy ---- */
+  .story-details-body {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+  }
+
+  .editorial-pullquote {
+    font-size: 1.15rem;
+    padding: 1.25rem 1.25rem;
+  }
+
+  .story-details-cover-wrapper {
+    margin-bottom: 2rem;
+  }
+
+  /* ---- Owner + form actions stay touch-friendly, never dominant ---- */
+  .my-story-actions .btn,
+  .story-details-author-toolbar .btn,
+  .form-actions-row .btn {
+    min-height: 44px;
+  }
+
+  .story-card-link {
+    padding: 0.4rem 0;
+  }
+
+  /* ---- Forms: readable, no iOS auto-zoom, no overflow ---- */
+  .form-input,
+  .form-textarea {
+    font-size: 16px;
+  }
+
+  .about-manifesto-card {
+    padding: 1.5rem;
+  }
+
+  .editorial-manifesto-banner::after {
+    display: none;
+  }
+
+  .journal-closing-box {
+    padding: 2.5rem 1.5rem;
+  }
+
+  /* Motion: shorter reveals, no continuous doodle drift on mobile */
+  [data-reveal="up"] {
+    transform: translateY(12px);
+  }
+
+  [data-reveal="feature"] {
+    transform: translateY(16px);
+  }
+
+  .thought-story-mark {
+    animation: none;
+  }
+}
+
+/* Small phones: author signature stacks instead of squeezing */
+@media (max-width: 600px) {
+  .story-author-box {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.75rem;
+  }
+}
+
+/* ==========================================================================
+   Editorial Motion — expressive magazine system (CSS-only, no library)
+   Hierarchy: SIGNATURE (hero, feature, story opening) > SECONDARY
+   (journal stories, section reveals, doodles, nav) > MICRO (buttons,
+   links, inputs, arrows). All transform/opacity/clip-path only.
+   Scroll reveals are driven by useReveal (IntersectionObserver) which
+   adds .is-visible once. Reduced-motion global kill below still applies.
+   ========================================================================== */
+
+@keyframes inkaLineUp {
+  from {
+    opacity: 0;
+    transform: translateY(110%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes inkaClipIn {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0% 0);
+  }
+}
+
+@keyframes inkaHeroUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes inkaDrawX {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes inkaPageIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes inkaPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes inkaMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes inkaFloatSoft {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(-2deg);
+  }
+}
+
+/* ---- SIGNATURE: Home hero load sequence (staged, composed) ---- */
+.hero-seq {
+  opacity: 0;
+  animation: inkaHeroUp 600ms var(--ease-editorial) forwards;
+}
+
+.hero-seq-1 {
+  animation-delay: 80ms;
+}
+
+.hero-seq-desc {
+  animation-delay: 620ms;
+}
+
+.hero-seq-actions {
+  animation-delay: 760ms;
+}
+
+.hero-title .line {
+  display: block;
+  overflow: hidden;
+}
+
+.hero-title .line > span {
+  display: block;
+  opacity: 0;
+  animation: inkaLineUp 850ms var(--ease-editorial) forwards;
+}
+
+.hero-title .line-1 > span {
+  animation-delay: 200ms;
+}
+
+.hero-title .line-2 > span {
+  animation-delay: 320ms;
+}
+
+.hero-title .line-3 > span {
+  animation-delay: 440ms;
+}
+
+.hero-visual-reveal {
+  opacity: 0;
+  animation: inkaClipIn 950ms var(--ease-editorial) 350ms forwards;
+}
+
+/* Masthead divider lines draw outward on load */
+.editorial-masthead-divider .masthead-line {
+  transform-origin: center;
+  animation: inkaDrawX 900ms var(--ease-editorial) 500ms both;
+}
+
+/* ---- SIGNATURE: story opening (title mask; cover uses data-reveal) ---- */
+.story-details-title .line {
+  display: block;
+  overflow: hidden;
+}
+
+.story-details-title .line > span {
+  display: block;
+  animation: inkaLineUp 800ms var(--ease-editorial) 150ms both;
+}
+
+/* ---- SECONDARY: scroll reveals (useReveal adds .is-visible once) ---- */
+[data-reveal] {
+  opacity: 0;
+}
+
+[data-reveal="up"] {
+  transform: translateY(18px);
+  transition: opacity 600ms var(--ease-editorial), transform 600ms var(--ease-editorial);
+}
+
+[data-reveal="feature"] {
+  transform: translateY(28px);
+  transition: opacity 750ms var(--ease-editorial), transform 750ms var(--ease-editorial);
+}
+
+[data-reveal="subtle"] {
+  transition: opacity 700ms var(--ease-editorial);
+}
+
+[data-reveal="left"] {
+  transform: translateX(-24px);
+  transition: opacity 600ms var(--ease-editorial), transform 600ms var(--ease-editorial);
+}
+
+[data-reveal="right"] {
+  transform: translateX(24px);
+  transition: opacity 600ms var(--ease-editorial), transform 600ms var(--ease-editorial);
+}
+
+[data-reveal="clip"] {
+  /* Hidden state is opacity-only: a fully-clipped box reports zero
+     intersection to IntersectionObserver, which deadlocks the reveal. */
+  opacity: 0;
+}
+
+[data-reveal="clip"].is-visible {
+  animation: inkaClipIn 900ms var(--ease-editorial) both;
+}
+
+[data-reveal="quote"] {
+  transform: translateY(14px) scale(0.985);
+  transition: opacity 700ms var(--ease-editorial), transform 700ms var(--ease-editorial);
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 0% 0);
+}
+
+/* ---- SECONDARY: navbar scrolled state + mobile menu reveal ---- */
+.navbar {
+  transition: box-shadow var(--transition-normal), background-color var(--transition-normal);
+}
+
+.navbar-inner {
+  transition: padding var(--transition-normal);
+}
+
+.navbar-scrolled {
+  background-color: rgba(255, 248, 238, 1);
+  box-shadow: var(--shadow-md);
+}
+
+.navbar-scrolled .navbar-inner {
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+}
+
+.navbar-collapsible.open {
+  animation: inkaMenuIn 260ms var(--ease-editorial) both;
+}
+
+/* ---- SECONDARY: journey stages + image preview entrances ---- */
+.editorial-journey-kicker > * {
+  opacity: 0;
+  animation: inkaFadeIn 400ms ease-out forwards;
+}
+
+.editorial-journey-kicker > *:nth-child(1) {
+  animation-delay: 60ms;
+}
+
+.editorial-journey-kicker > *:nth-child(2) {
+  animation-delay: 140ms;
+}
+
+.editorial-journey-kicker > *:nth-child(3) {
+  animation-delay: 220ms;
+}
+
+.editorial-journey-kicker > *:nth-child(4) {
+  animation-delay: 300ms;
+}
+
+.editorial-journey-kicker > *:nth-child(5) {
+  animation-delay: 380ms;
+}
+
+.image-preview-wrapper {
+  animation: inkaPopIn 350ms var(--ease-editorial) both;
+}
+
+/* ---- Doodles: one slow drift (thought mark); the rest reveal only ---- */
+.thought-story-mark {
+  animation: inkaFloatSoft 9s ease-in-out infinite;
+}
+
+/* ---- MICRO: coordinated card hover (lift + image + title + link) ---- */
+.story-card-title,
+.secondary-story-title {
+  transition: transform var(--transition-fast), color var(--transition-fast);
+}
+
+.story-card:hover .story-card-title,
+.secondary-story-card:hover .secondary-story-title {
+  transform: translateX(3px);
+}
+
+.story-card-link {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1.5px;
+  background-repeat: no-repeat;
+  background-position: left calc(100% - 1px);
+  transition: transform var(--transition-fast), background-size var(--duration-fast) var(--ease-editorial);
+}
+
+.story-card-link:hover {
+  background-size: 100% 1.5px;
+}
+
+/* ---- MICRO: button arrows + page transitions ---- */
+.btn span[aria-hidden="true"] {
+  display: inline-block;
+  transition: transform var(--duration-fast) var(--ease-editorial);
+}
+
+.btn:not(:disabled):hover span[aria-hidden="true"] {
+  transform: translateX(3px);
+}
+
+.main-content.page-enter {
+  animation: inkaPageIn 280ms ease-out both;
+}
+
+/* Screen-reader-only text (Milestone: Write Desk) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================================================
+   Write Desk — editorial workspace spread (Write page only)
+   Cream canvas, dark structure, pink reserved for Publish.
+   ========================================================================== */
+
+.write-desk {
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+/* ---- Masthead ---- */
+.write-masthead {
+  border-bottom: 2px solid var(--color-dark-text);
+  padding-bottom: 2rem;
+  margin-bottom: 2.75rem;
+}
+
+.write-index-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-muted-text);
+  padding-bottom: 0.85rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.write-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--color-dark-text);
+  margin-bottom: 1rem;
+  overflow-wrap: break-word;
+}
+
+.write-title .line {
+  display: block;
+  overflow: hidden;
+}
+
+.write-title .line > span {
+  display: block;
+  opacity: 0;
+  animation: inkaLineUp 850ms var(--ease-editorial) forwards;
+}
+
+.write-title .line-1 > span {
+  animation-delay: 200ms;
+}
+
+.write-title .line-2 > span {
+  animation-delay: 320ms;
+}
+
+.write-sub {
+  font-size: 1.125rem;
+  color: var(--color-muted-text);
+  max-width: 560px;
+  margin-bottom: 1.75rem;
+}
+
+/* Publication workflow strip: editorial context, not a wizard */
+.write-workflow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 1.5rem 0 0 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.write-workflow-step {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  color: var(--color-muted-text);
+  opacity: 0.75;
+}
+
+.write-workflow-step .on {
+  color: var(--color-bright-pink);
+  opacity: 1;
+}
+
+.write-workflow-sep {
+  opacity: 0.5;
+}
+
+/* Editorial desk switch: typography-led Write / Preview control */
+.write-modes {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.write-mode-btn {
+  position: relative;
+  padding: 0.5rem 0.1rem;
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--color-muted-text);
+  background: none;
+  transition: color var(--transition-fast);
+  min-height: 44px;
+}
+
+.write-mode-btn::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background-color: var(--color-bright-pink);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--duration-fast) var(--ease-editorial);
+}
+
+.write-mode-btn:hover:not(:disabled) {
+  color: var(--color-dark-text);
+}
+
+.write-mode-btn.active {
+  color: var(--color-dark-text);
+}
+
+.write-mode-btn.active::after {
+  transform: scaleX(1);
+}
+
+.write-mode-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Spread: writing surface + sidebar ---- */
+.write-spread {
+  display: grid;
+  grid-template-columns: 1.55fr 0.85fr;
+  gap: 3.5rem;
+  align-items: start;
+}
+
+.write-main {
+  min-width: 0;
+}
+
+/* ---- Headline field ---- */
+.desk-field {
+  margin-bottom: 3rem;
+}
+
+.desk-field-label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-muted-text);
+  margin-bottom: 0.5rem;
+}
+
+.desk-field-num {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--color-bright-pink);
+  font-size: 0.9375rem;
+}
+
+.desk-field-sub {
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--color-muted-text);
+  opacity: 0.8;
+  margin-left: auto;
+}
+
+.desk-title-input {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid var(--color-border);
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--color-dark-text);
+  padding: 0.5rem 0 1rem 0;
+  transition: border-color var(--transition-fast);
+}
+
+.desk-title-input::placeholder {
+  color: var(--color-muted-text);
+  opacity: 0.7;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.desk-title-input:focus {
+  outline: none;
+  border-bottom-color: var(--color-bright-pink);
+}
+
+.desk-title-input.has-error {
+  border-bottom-color: var(--color-error);
+}
+
+/* ---- Cover frame ---- */
+.desk-cover-empty {
+  border: 1.5px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-card-bg);
+  padding: 3rem 2rem;
+  aspect-ratio: 16 / 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  gap: 0.6rem;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.desk-cover-empty:hover {
+  border-color: var(--color-dark-text);
+  background-color: #FFFFFF;
+}
+
+.desk-cover-mark {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--color-bright-pink);
+}
+
+.desk-cover-text {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--color-dark-text);
+}
+
+.desk-cover-hint {
+  font-size: 0.8125rem;
+  color: var(--color-muted-text);
+}
+
+.desk-cover-frame {
+  margin: 0;
+  border: 1.5px solid var(--color-dark-text);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background-color: var(--color-card-bg);
+  box-shadow: 4px 4px 0px var(--color-dark-text);
+  animation: inkaPopIn 350ms var(--ease-editorial) both;
+}
+
+.desk-cover-img {
+  width: 100%;
+  max-height: 380px;
+  object-fit: cover;
+  display: block;
+}
+
+.desk-cover-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+/* ---- Manuscript ---- */
+.desk-manuscript {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  resize: vertical;
+  min-height: 380px;
+  font-size: 1.125rem;
+  line-height: 1.9;
+  color: var(--color-dark-text);
+  padding: 1.75rem 0.25rem;
+}
+
+.desk-manuscript::placeholder {
+  color: var(--color-muted-text);
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.desk-manuscript:focus {
+  outline: none;
+  border-top-color: var(--color-bright-pink);
+  border-bottom-color: var(--color-bright-pink);
+}
+
+/* ---- Preview (reuses reading composition) ---- */
+.write-preview {
+  animation: inkaFadeIn 300ms ease-out both;
+}
+
+.write-preview .story-details-title {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+}
+
+.write-preview .story-details-title.preview-untitled {
+  color: var(--color-muted-text);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.preview-draft-note {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-muted-text);
+  margin: 0.75rem 0 2rem 0;
+}
+
+.preview-cover-empty {
+  border: 1.5px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--color-muted-text);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.0625rem;
+  margin-bottom: 2.5rem;
+}
+
+.preview-empty {
+  color: var(--color-muted-text);
+  font-style: italic;
+  border: 1.5px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  text-align: center;
+}
+
+/* ---- Sidebar ---- */
+.write-side {
+  min-width: 0;
+}
+
+.side-block {
+  border-top: 2px solid var(--color-dark-text);
+  padding-top: 1rem;
+  margin-bottom: 2.25rem;
+}
+
+.side-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-dark-text);
+  margin-bottom: 1rem;
+}
+
+.side-rows {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.875rem;
+}
+
+.side-row dt {
+  color: var(--color-muted-text);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.side-row dd {
+  margin: 0;
+  color: var(--color-dark-text);
+  font-weight: 700;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60%;
+}
+
+.side-pub {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-dark-text);
+  margin-bottom: 0.25rem;
+}
+
+.side-note {
+  font-size: 0.875rem;
+  color: var(--color-muted-text);
+}
+
+.side-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* Publication moment: derived from existing form state only */
+.side-ready {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-muted-text);
+  margin: 0 0 0.25rem 0;
+}
+
+.side-ready::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-border);
+  flex-shrink: 0;
+  transition: background-color var(--transition-fast);
+}
+
+.side-ready.is-ready {
+  color: var(--color-bright-pink);
+}
+
+.side-ready.is-ready::before {
+  background-color: var(--color-yellow);
+}
+
+.side-actions .btn {
+  width: 100%;
+  min-height: 48px;
+}
+
+.desk-back-link {
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-muted-text);
+  padding: 0.6rem 0;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1.5px;
+  background-repeat: no-repeat;
+  background-position: center calc(100% - 2px);
+  transition: color var(--transition-fast), background-size var(--duration-fast) var(--ease-editorial);
+}
+
+.desk-back-link:hover {
+  color: var(--color-dark-text);
+  background-size: 60% 1.5px;
+}
+
+/* ---- Write Desk responsive ---- */
+@media (max-width: 1023px) {
+  .write-spread {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .write-masthead {
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .desk-cover-empty {
+    padding: 2rem 1.25rem;
+  }
+
+  .side-actions .btn {
+    min-height: 48px;
+  }
+}
+
+/* ==========================================================================
+   Custom editorial cursor (desktop fine pointers only; see Cursor.jsx)
+   One INKA mark: solid pink blade + lagging dark outline ghost.
+   States: default · link (compact) · story (expressive) · pressed.
+   ========================================================================== */
+.inka-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.inka-cursor.is-visible {
+  opacity: 1;
+}
+
+.inka-cursor-mark {
+  display: block;
+  transition: transform 220ms var(--ease-editorial);
+}
+
+/* Ghost: same artwork as a thin dark outline, permanently offset for a
+   print-registration feel; JS lags its position behind the pointer. */
+.inka-cursor-ghost {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.inka-cursor-ghost svg {
+  display: block;
+  transform: scale(0.97);
+  transition: transform 240ms var(--ease-editorial);
+}
+
+body.inka-cursor-on .inka-cursor-ghost {
+  opacity: 1;
+}
+
+/* Tiny accent dot: wakes only over editorial content */
+.inka-cursor-accent {
+  position: absolute;
+  left: 17px;
+  top: 15px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-yellow);
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity 200ms ease, transform 240ms var(--ease-editorial);
+}
+
+/* Link state: tighter, more compact mark */
+.inka-cursor-link .inka-cursor-mark {
+  transform: scale(0.9);
+}
+
+/* Story state: expressive mark, wider ghost separation, accent dot */
+.inka-cursor-story .inka-cursor-mark {
+  transform: scale(1.25);
+}
+
+.inka-cursor-story ~ .inka-cursor-ghost svg {
+  transform: scale(1);
+}
+
+.inka-cursor-story .inka-cursor-accent {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Pressed: tactile compression + stronger ghost offset, snaps back */
+.inka-cursor.is-pressed .inka-cursor-mark {
+  transform: scale(0.86);
+  transition-duration: 110ms;
+}
+
+.inka-cursor.is-pressed ~ .inka-cursor-ghost svg {
+  transform: scale(0.98);
+  transition-duration: 110ms;
+}
+
+/* Hide the native cursor only while the custom one drives (fine pointers) */
+@media (hover: hover) and (pointer: fine) {
+  body.inka-cursor-on,
+  body.inka-cursor-on * {
+    cursor: none !important;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .inka-cursor {
+    display: none;
+  }
+}
+
+/* ==========================================================================
    Accessibility: Reduced Motion Preference (Milestone 13)
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
@@ -1861,6 +3342,13 @@ textarea {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .inka-cursor-mark,
+  .inka-cursor-ghost,
+  .inka-cursor-accent {
+    transition: none;
+    animation: none;
   }
 }
 

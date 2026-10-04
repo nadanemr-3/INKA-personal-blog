@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import StoryList from '../components/StoryList';
 import { getPosts } from '../services/api';
+import { useReveal } from '../hooks/useReveal';
 
 function Journal() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
+  const rootRef = useReveal([loading]);
 
   useEffect(() => {
     let isMounted = true;
@@ -39,7 +41,7 @@ function Journal() {
   };
 
   return (
-    <div className="journal-page">
+    <div className="journal-page" ref={rootRef}>
       {/* Journal Publication Masthead */}
       <header className="journal-masthead motion-fade-up">
         <div className="journal-masthead-top">
@@ -60,7 +62,7 @@ function Journal() {
         </div>
       </header>
 
-      <main>
+      <div className="journal-list">
         <StoryList
           posts={posts}
           loading={loading}
@@ -70,12 +72,12 @@ function Journal() {
           emptyMessage="The journal is currently quiet. Be among the first to share an essay or story."
           layout="magazine"
         />
-      </main>
+      </div>
 
       {/* Journal Editorial Sign-Off */}
       {!loading && !error && posts.length > 0 && (
         <section className="journal-closing-section">
-          <div className="journal-closing-box motion-scale-in">
+          <div className="journal-closing-box" data-reveal="up">
             <span className="journal-closing-stamp">INKA • SUBMISSIONS</span>
             <h3 className="journal-closing-title">Have a story to tell?</h3>
             <p className="journal-closing-desc">

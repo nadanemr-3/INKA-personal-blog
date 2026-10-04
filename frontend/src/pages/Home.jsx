@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import StoryList from '../components/StoryList';
 import { getPosts } from '../services/api';
+import { useReveal } from '../hooks/useReveal';
 
 function Home() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
+  const rootRef = useReveal([loading]);
 
   useEffect(() => {
     let isMounted = true;
@@ -39,36 +41,46 @@ function Home() {
   };
 
   return (
-    <div className="home-page">
+    <div className="home-page" ref={rootRef}>
       {/* Editorial Magazine Cover Header */}
       <section className="hero-section" aria-labelledby="hero-heading">
-        <div className="hero-content motion-fade-up">
-          <div className="hero-kicker">
-            <span className="hero-issue-tag">Vol. 01</span>
-            <span className="hero-kicker-divider">•</span>
-            <span className="hero-tag">Personal Journal & Essays</span>
-          </div>
+        <div className="hero-kicker hero-seq hero-seq-1">
+          <span className="hero-issue-tag">Vol. 01</span>
+          <span className="hero-kicker-divider">•</span>
+          <span className="hero-tag">Personal Journal & Essays</span>
+        </div>
 
-          <h1 id="hero-heading" className="hero-title">
-            Where personal experiences become <span className="hero-title-highlight">editorial literature</span>.
-          </h1>
+        <h1 id="hero-heading" className="hero-title" aria-label="Where personal experiences become editorial literature.">
+          <span className="line line-1" aria-hidden="true"><span>Where personal</span></span>
+          <span className="line line-2" aria-hidden="true"><span>experiences become</span></span>
+          <span className="line line-3" aria-hidden="true"><span><span className="hero-title-highlight">editorial literature</span>.</span></span>
+        </h1>
 
-          <p className="hero-description">
+        <div className="hero-lede">
+          <p className="hero-description hero-seq hero-seq-desc">
             INKA is an independent digital publication celebrating authentic storytelling,
             thoughtful memoirs, and artistic perspectives. Read curated narratives or craft your own piece.
           </p>
 
-          <div className="hero-actions">
-            <Link to="/journal" className="btn btn-primary btn-lg" role="button">
+          <div className="hero-actions hero-seq hero-seq-actions">
+            <Link to="/journal" className="btn btn-primary btn-lg">
               Explore Journal <span aria-hidden="true">→</span>
             </Link>
-            <Link to="/write" className="btn btn-outline btn-lg" role="button">
+            <Link to="/write" className="btn btn-outline btn-lg">
               Write a Story
             </Link>
           </div>
+
+          <div className="hero-meta-row hero-seq hero-seq-meta" aria-label="Publication notes">
+            <span>Independent publication</span>
+            <span aria-hidden="true">•</span>
+            <span>Personal essays</span>
+            <span aria-hidden="true">•</span>
+            <span>Open submissions</span>
+          </div>
         </div>
 
-        <div className="hero-card-preview motion-scale-in motion-stagger-2" aria-hidden="true">
+        <div className="hero-card-preview hero-visual-reveal" aria-hidden="true">
           <div className="hero-card-accent-badge">Editorial Note</div>
           <h2 className="hero-card-preview-title">
             "Stories that breathe with personality, warmth, and craft."
@@ -84,7 +96,7 @@ function Home() {
       </section>
 
       {/* Editorial Magazine Feed */}
-      <section className="home-journal-section motion-fade-up motion-stagger-3" aria-labelledby="recent-heading">
+      <section className="home-journal-section" data-reveal="up" aria-labelledby="recent-heading">
         <div className="editorial-masthead-divider">
           <span className="masthead-line" />
           <span className="masthead-label">Curated Selection</span>
@@ -113,7 +125,7 @@ function Home() {
       </section>
 
       {/* Editorial Manifesto Quote */}
-      <section className="editorial-manifesto-banner motion-fade-up motion-stagger-4" aria-label="Editorial philosophy">
+      <section className="editorial-manifesto-banner" data-reveal="subtle" aria-label="Editorial philosophy">
         <div className="manifesto-mark" aria-hidden="true">◆</div>
         <p className="manifesto-quote">
           “We believe that everyday reflections, essays, and human experiences deserve 

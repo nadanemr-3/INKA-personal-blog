@@ -1,16 +1,34 @@
-# React + Vite
+# INKA Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React 19 + Vite 8 single-page application for the INKA personal blog / digital magazine.
 
-Currently, two official plugins are available:
+## Commands
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install   # install dependencies
+npm run dev   # start dev server (http://localhost:5173)
+npm run lint  # oxlint
+npm run build # production build into dist/
+npm run preview # preview the production build
+```
 
-## React Compiler
+## Configuration
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Copy `.env.example` to `.env` (never commit `.env`):
 
-## Expanding the Oxlint configuration
+| Variable       | Value                       |
+| -------------- | --------------------------- |
+| `VITE_API_URL` | `http://localhost:5000/api` |
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Structure
+
+- `src/pages/` — Home, Journal, StoryDetails, CreateStory, EditStory, MyStories, Login, Register, About
+- `src/components/` — Navbar, StoryCard (5 editorial variants), StoryList, Button, Input, ProtectedRoute
+- `src/context/` + `src/hooks/` — JWT auth state (`useAuth`)
+- `src/services/api.js` — centralized Axios instance; attaches the Bearer token automatically
+- `src/index.css` — editorial design system, CSS motion utilities, responsive rules, accessibility styles
+
+Public routes: `/`, `/journal`, `/stories/:id`, `/about`, `/login`, `/register`.
+Protected routes (require login): `/write`, `/edit/:id`, `/my-stories`.
+
+See the root `README.md` for backend, database, API, and auth documentation.

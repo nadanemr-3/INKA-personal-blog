@@ -19,7 +19,8 @@ const register = async (req, res) => {
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    const normalizedEmail = email.toLowerCase().trim();
+    if (!emailRegex.test(normalizedEmail)) {
       return res.status(400).json({ message: 'Please provide a valid email address' });
     }
 
@@ -31,7 +32,7 @@ const register = async (req, res) => {
     // Check if email already exists
     const [existingUsers] = await db.query(
       'SELECT id FROM users WHERE email = ?',
-      [email]
+      [normalizedEmail]
     );
 
     if (existingUsers.length > 0) {

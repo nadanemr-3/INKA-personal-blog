@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import { getPost, deletePost } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
+import { useReveal } from '../hooks/useReveal';
 
 function StoryDetails() {
   const { id } = useParams();
@@ -16,6 +17,7 @@ function StoryDetails() {
   const [retryCount, setRetryCount] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const rootRef = useReveal([post]);
 
   useEffect(() => {
     let isMounted = true;
@@ -91,7 +93,7 @@ function StoryDetails() {
           Story Unavailable
         </h2>
         <p className="state-desc">{error || 'The requested story could not be found.'}</p>
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
+        <div className="state-actions">
           <Button variant="primary" size="sm" onClick={handleRetry}>
             Retry
           </Button>
@@ -129,12 +131,73 @@ function StoryDetails() {
   const authorInitial = (post.author_name || 'S').charAt(0).toUpperCase();
 
   return (
-    <article className="story-details-page" aria-labelledby="story-article-title">
-      {/* Author Action Toolbar if viewing own story */}
+    <article className="story-details-page" ref={rootRef} aria-labelledby="story-article-title">
+      {deleteError && (
+        <div className="alert-error" role="alert" style={{ marginBottom: '1.5rem' }}>
+          <span>⚠️</span>
+          <span>{deleteError}</span>
+        </div>
+      )}
+
+      {/* Magazine Article Header */}
+      <header className="story-details-header motion-fade-up">
+        <div className="story-details-kicker">
+          <span className="story-details-issue-badge">INKA Publication</span>
+          <span className="story-details-kicker-dot">•</span>
+          <span className="story-details-genre">Personal Essay</span>
+        </div>
+
+        <h1 id="story-article-title" className="story-details-title">
+          <span className="line"><span>{post.title}</span></span>
+        </h1>
+
+        <div className="story-details-byline">
+          <span>Written by <strong className="story-author-badge">{post.author_name || 'Storyteller'}</strong></span>
+          {formattedDate && (
+            <>
+              <span aria-hidden="true" className="byline-dot">•</span>
+              <time dateTime={post.created_at}>{formattedDate}</time>
+            </>
+          )}
+        </div>
+      </header>
+
+      {/* Cover Image Treatment */}
+      {fullImageUrl && (
+        <figure className="story-details-cover-wrapper" data-reveal="clip">
+          <img
+            src={fullImageUrl}
+            alt={post.title || 'Story header image'}
+            className="story-details-cover"
+            onError={() => setImageError(true)}
+          />
+        </figure>
+      )}
+
+      {/* Story Content & Typographical Treatment */}
+      <div className="story-details-body">
+        {paragraphs.length > 0 ? (
+          paragraphs.map((para, index) => {
+            // If article is long (3+ paragraphs), highlight 2nd paragraph as an editorial pull-quote if appropriate
+            if (index === 1 && paragraphs.length >= 3 && para.length < 220) {
+              return (
+                <blockquote key={index} className="editorial-pullquote" data-reveal="quote">
+                  <p>{para}</p>
+                </blockquote>
+              );
+            }
+            return <p key={index} data-reveal="up">{para}</p>;
+          })
+        ) : (
+          <p>{post.content}</p>
+        )}
+      </div>
+
+      {/* Author Action Toolbar if viewing own story — placed after the
+          story body so the article opens with the editorial kicker */}
       {isOwner && (
         <aside className="story-details-author-toolbar" aria-label="Author controls">
-          <span className="story-details-author-toolbar-tag">Author Controls</span>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <div className="author-toolbar-actions">
             <Link to={`/edit/${post.id}`} className="btn btn-soft btn-sm">
               Edit Story
             </Link>
@@ -153,67 +216,6 @@ function StoryDetails() {
         </aside>
       )}
 
-      {deleteError && (
-        <div className="alert-error" role="alert" style={{ marginBottom: '1.5rem' }}>
-          <span>⚠️</span>
-          <span>{deleteError}</span>
-        </div>
-      )}
-
-      {/* Magazine Article Header */}
-      <header className="story-details-header motion-fade-up">
-        <div className="story-details-kicker">
-          <span className="story-details-issue-badge">INKA Publication</span>
-          <span className="story-details-kicker-dot">•</span>
-          <span className="story-details-genre">Personal Essay</span>
-        </div>
-
-        <h1 id="story-article-title" className="story-details-title">
-          {post.title}
-        </h1>
-
-        <div className="story-details-byline">
-          <span>Written by <strong className="story-author-badge">{post.author_name || 'Storyteller'}</strong></span>
-          {formattedDate && (
-            <>
-              <span aria-hidden="true" className="byline-dot">•</span>
-              <time dateTime={post.created_at}>{formattedDate}</time>
-            </>
-          )}
-        </div>
-      </header>
-
-      {/* Cover Image Treatment */}
-      {fullImageUrl && (
-        <figure className="story-details-cover-wrapper motion-scale-in motion-stagger-1">
-          <img
-            src={fullImageUrl}
-            alt={post.title || 'Story header image'}
-            className="story-details-cover"
-            onError={() => setImageError(true)}
-          />
-        </figure>
-      )}
-
-      {/* Story Content & Typographical Treatment */}
-      <div className="story-details-body motion-fade-in motion-stagger-2">
-        {paragraphs.length > 0 ? (
-          paragraphs.map((para, index) => {
-            // If article is long (3+ paragraphs), highlight 2nd paragraph as an editorial pull-quote if appropriate
-            if (index === 1 && paragraphs.length >= 3 && para.length < 220) {
-              return (
-                <blockquote key={index} className="editorial-pullquote">
-                  <p>{para}</p>
-                </blockquote>
-              );
-            }
-            return <p key={index}>{para}</p>;
-          })
-        ) : (
-          <p>{post.content}</p>
-        )}
-      </div>
-
       {/* Editorial End Mark */}
       <div className="story-editorial-endmark motion-fade-in motion-stagger-3" aria-hidden="true">
         <span>◆</span>
@@ -222,7 +224,7 @@ function StoryDetails() {
       </div>
 
       {/* Author Byline & Publication Footer Box */}
-      <footer className="story-author-box motion-fade-up motion-stagger-4">
+      <footer className="story-author-box" data-reveal="up">
         <div className="story-author-avatar" aria-hidden="true">
           {authorInitial}
         </div>

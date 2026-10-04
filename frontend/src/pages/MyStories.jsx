@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Button from '../components/Button';
 import { getPosts, deletePost } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
+import { useReveal } from '../hooks/useReveal';
 
 function MyStories() {
   const { user } = useAuth();
@@ -12,6 +13,7 @@ function MyStories() {
   const [deletingId, setDeletingId] = useState(null);
   const [deleteError, setDeleteError] = useState('');
   const [retryCount, setRetryCount] = useState(0);
+  const rootRef = useReveal([loading]);
 
   useEffect(() => {
     let isMounted = true;
@@ -96,7 +98,7 @@ function MyStories() {
   }
 
   return (
-    <div className="my-stories-page">
+    <div className="my-stories-page" ref={rootRef}>
       <header className="page-header motion-fade-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <div className="editorial-journey-kicker" style={{ marginBottom: '0.5rem' }}>
@@ -147,7 +149,7 @@ function MyStories() {
             const isDeleting = deletingId === post.id;
 
             return (
-              <article key={post.id} className="my-story-item">
+              <article key={post.id} className="my-story-item" data-reveal="up">
                 <div className="my-story-thumbnail-wrapper">
                   {fullImageUrl ? (
                     <img src={fullImageUrl} alt={post.title} className="my-story-thumbnail" />

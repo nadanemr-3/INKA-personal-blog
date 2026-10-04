@@ -1,7 +1,9 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
+import Cursor from './components/Cursor';
 import Home from './pages/Home';
 import Journal from './pages/Journal';
 import StoryDetails from './pages/StoryDetails';
@@ -13,14 +15,40 @@ import Register from './pages/Register';
 import About from './pages/About';
 import './index.css';
 
-function App() {
-  return (
-    <AuthProvider>
-      <BrowserRouter>
-        <div className="app-container">
-          <Navbar />
+// On client-side route change: reset scroll and move focus to the main
+// region so keyboard and screen-reader users start at the new content.
+// The previous-pathname guard keeps full page loads (including React
+// StrictMode effect re-runs in development) from stealing focus.
+function RouteFocus({ mainRef }) {
+  const { pathname } = useLocation();
+  const prevPathname = useRef(pathname);
 
-          <main className="main-content">
+  useEffect(() => {
+    if (prevPathname.current === pathname) {
+      return;
+    }
+    prevPathname.current = pathname;
+    window.scrollTo(0, 0);
+    mainRef.current?.focus({ preventScroll: true });
+  }, [pathname, mainRef]);
+
+  return null;
+}
+
+function AppShell() {
+  const mainRef = useRef(null);
+  const { pathname } = useLocation();
+
+  return (
+    <div className="app-container">
+      <a className="skip-link" href="#main-content">
+        Skip to main content
+      </a>
+      <Cursor />
+      <RouteFocus mainRef={mainRef} />
+      <Navbar />
+
+      <main id="main-content" className="main-content page-enter" ref={mainRef} tabIndex={-1} key={pathname}>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
@@ -64,7 +92,7 @@ function App() {
           <footer className="footer" role="contentinfo">
             <div className="footer-inner">
               <div className="footer-brand">
-                <span>INKA</span>
+                <img src="/inka-logo-reversed.png" alt="INKA" className="footer-logo" />
               </div>
               <p className="footer-text">
                 A personal blog & digital publication. Where ideas, experiences, and stories become editorial articles.
@@ -75,6 +103,14 @@ function App() {
             </div>
           </footer>
         </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <AppShell />
       </BrowserRouter>
     </AuthProvider>
   );

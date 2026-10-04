@@ -312,7 +312,7 @@ function EditStory() {
             disabled={isSubmitting}
           />
 
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', alignItems: 'center' }}>
+          <div className="form-actions-row">
             <Button
               type="submit"
               variant="primary"

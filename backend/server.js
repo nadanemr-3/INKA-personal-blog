@@ -11,9 +11,21 @@ const postRoutes = require('./routes/postRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Do not advertise the framework in response headers
+app.disable('x-powered-by');
+
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (
+      /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+      origin === process.env.CORS_ORIGIN
+    ) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 app.use(express.json());
